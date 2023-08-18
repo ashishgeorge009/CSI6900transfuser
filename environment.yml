@@ -24,5 +24,5 @@ dependencies:
   - cudatoolkit=10.2
   - pip:
     - -r team_code_transfuser/requirements.txt
-    - mmsegmentation==0.25.0
-    - mmdet==2.25.0
+    - mmsegmentation==0.30.0
+    - mmdet==2.27.0
