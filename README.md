@@ -1,4 +1,4 @@
-# TransFuser: Imitation with Transformer-Based Sensor Fusion for Autonomous Driving
+# Experimenting with TransFuser: A imitation with Transformer-Based Sensor Fusion for Autonomous Driving
 This is done for the fullfillment of requirements for CSI6900 Spring 2023 at University of Ottawa. 
 
 <img src="figures/demo.gif">
