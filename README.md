@@ -44,7 +44,7 @@ To evaluate a model, we first launch a CARLA server:
 
 Once the CARLA server is running, evaluate an agent with the script:
 
-PS: Before RUNNING this make sure the `CARLA_ROOT`, `WORK_DIR` are correct. Also make sure the file path to `ROUTES`(contains test cases) and `CHECKPOINT_ENDPOINT` (contains the result csv file) is also correct in `my_evaluation.sh` file.
+PS: Before RUNNING this make sure the `CARLA_ROOT`, `WORK_DIR` are correct in `my_evaluation.sh`. Also make sure the file path to `ROUTES`(contains test cases) and `CHECKPOINT_ENDPOINT` (contains the result csv file) is also correct in `my_evaluation.sh` file.
  
 ```Shell
 ./leaderboard/scripts/my_evaluation.sh
