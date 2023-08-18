@@ -25,7 +25,7 @@ pip install mmcv-full==1.7.1 -f https://download.openmmlab.com/mmcv/dist/cu117/t
 ```
 
 
-### Pretrained agents
+### Pretrained Model
 Pre-trained agent files for all 4 methods can be downloaded from [AWS](https://s3.eu-central-1.amazonaws.com/avg-projects/transfuser/models_2022.zip):
 
 ```Shell
@@ -35,7 +35,7 @@ unzip model_ckpt/models_2022.zip -d model_ckpt/
 rm model_ckpt/models_2022.zip
 ```
 
-### Running an agent
+### Running the evaluations
 To evaluate a model, we first launch a CARLA server:
 
 ```Shell
