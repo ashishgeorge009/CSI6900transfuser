@@ -10,10 +10,14 @@ from collections import OrderedDict
 import json
 import math
 import xml.etree.ElementTree as ET
+import csv
+import ast
 
 import carla
 from agents.navigation.local_planner import RoadOption
 from srunner.scenarioconfigs.route_scenario_configuration import RouteScenarioConfiguration
+from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
+
 
 # TODO  check this threshold, it could be a bit larger but not so large that we cluster scenarios.
 TRIGGER_THRESHOLD = 2.0  # Threshold to say if a trigger position is new or repeated, works for matching positions
@@ -44,7 +48,7 @@ class RouteParser(object):
         return final_dict  # the file has a current maps name that is an one element vec
 
     @staticmethod
-    def parse_routes_file(route_filename, scenario_file, single_route=None):
+    def parse_routes_file(route_filename,single_route=None):
         """
         Returns a list of route elements.
         :param route_filename: the path to a set of routes.
@@ -75,6 +79,60 @@ class RouteParser(object):
             new_config.trajectory = waypoint_list
 
             list_route_descriptions.append(new_config)
+
+        return list_route_descriptions
+    @staticmethod
+    def parse_csv_routes_file(route_filename, scenario_file, single_route=None):
+        """
+        Returns a list of route elements.
+        :param route_filename: the path to a set of routes.
+        :param single_route: If set, only this route shall be returned
+        :return: List of dicts containing the waypoints, id and town of the routes
+        """
+        try_no = 0
+        prev_no = -1
+        with open(route_filename, 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+
+            list_route_descriptions = []
+            for route in csv_reader:
+               
+                route_id = int(route['id'])
+                if prev_no == route_id:
+                    try_no+=1
+                else:
+                    try_no = 0
+                prev_no =route_id
+                if single_route and route_id != single_route:
+                    continue
+
+                new_config = RouteScenarioConfiguration()
+                new_config.town = 'Town03'
+                new_config.name = "RouteScenario_{}_try_{}".format(route_id, try_no)
+                new_config.weather = RouteParser.parse_weather_list(route)
+                new_config.scenario_file = scenario_file
+                new_config.ego_vehical_model= int(route['ego_model'])
+                new_config.non_ego_vehicle_model=int(route['non_ego_model'])
+                # ego_point = ast.literal_eval(route['waypoints'])[0]
+                # new_config.ego_point = carla.Location(x=float(ego_point[0]),
+                #                                       y=float(ego_point[1]),
+                #                                       z=float(ego_point[2]))
+                new_config.amountFront = int(route['front'])
+                new_config.amountBack = int(route['back'])
+                new_config.amountAcross = int(route['across'])
+
+                waypoint_list = []  # the list of waypoints that can be found on this route
+                # for waypoint in ast.literal_eval(route['waypoints']):
+                #     print("I am pointer",waypoint)
+                #     # waypoint = ast.literal_eval(waypointed)
+                #     waypoint_list.append(carla.Location(x=float(waypoint[0]),
+                #                                         y=float(waypoint[1]),
+                #                                         z=float(waypoint[2])))
+                
+
+                new_config.trajectory = []
+
+                list_route_descriptions.append(new_config)
 
         return list_route_descriptions
 
@@ -114,6 +172,30 @@ class RouteParser(object):
                     weather.fog_density = float(weather_attrib.attrib['fog_density'])
                 if 'fog_falloff' in weather_attrib.attrib:
                     weather.fog_falloff = float(weather_attrib.attrib['fog_falloff'])
+
+        return weather
+    
+    @staticmethod
+    def parse_weather_list(route):
+        """
+        Returns a carla.WeatherParameters with the corresponding weather for that route. If the route
+        has no weather attribute, the default one is triggered.
+        """
+
+
+        if not route:
+
+            weather = carla.WeatherParameters(sun_altitude_angle=70, cloudiness=30)
+
+        else:
+            weather = carla.WeatherParameters()
+
+            if route['cloudiness']:
+                weather.cloudiness = float(route['cloudiness']) 
+            if route['precipitation']:
+                weather.precipitation = float(route['precipitation'])
+            if route['fog_density']:
+                weather.fog_density = float(route['fog_density'])
 
         return weather
 

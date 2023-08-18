@@ -186,17 +186,13 @@ class RouteScenario(BasicScenario):
         self.config = config
         self.route = None
         self.sampled_scenarios_definitions = None
+        self.world = world
 
         self._update_route(world, config, debug_mode>0)
 
-        ego_vehicle = self._update_ego_vehicle()
+        ego_vehicle = self._update_ego_vehicle(config.ego_vehical_model)
 
-        self.list_scenarios = self._build_scenario_instances(world,
-                                                             ego_vehicle,
-                                                             self.sampled_scenarios_definitions,
-                                                             scenarios_per_tick=10,
-                                                             timeout=self.timeout,
-                                                             debug_mode=debug_mode>1)
+        self.list_scenarios = [] 
 
         super(RouteScenario, self).__init__(name=config.name,
                                             ego_vehicles=[ego_vehicle],
@@ -215,22 +211,17 @@ class RouteScenario(BasicScenario):
         - config: Scenario configuration (RouteConfiguration)
         """
 
-        # Transform the scenario file into a dictionary
-        world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
 
         # prepare route's trajectory (interpolate and add the GPS route)
         gps_route, route = interpolate_trajectory(world, config.trajectory)
 
-        potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(
-            config.town, route, world_annotations)
 
         self.route = route
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
 
         config.agent.set_global_plan(gps_route, self.route)
 
-        # Sample the scenarios to be used for this route instance.
-        self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
+       
 
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout()
@@ -239,15 +230,18 @@ class RouteScenario(BasicScenario):
         if debug_mode:
             self._draw_waypoints(world, self.route, vertical_shift=1.0, persistency=50000.0)
 
-    def _update_ego_vehicle(self):
+    def _update_ego_vehicle(self, vehicle_model):
         """
         Set/Update the start position of the ego_vehicle
         """
+        print('I am the Route: ', self.route[0])
         # move ego to correct position
         elevate_transform = self.route[0][0]
         elevate_transform.location.z += 0.5
+        egoType = self.world.get_blueprint_library().filter('vehicle.*')[int(vehicle_model)]
+        print("EGO TYPE",egoType.id)
 
-        ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
+        ego_vehicle = CarlaDataProvider.request_new_actor(egoType.id,
                                                           elevate_transform,
                                                           rolename='hero')
 
@@ -466,9 +460,11 @@ class RouteScenario(BasicScenario):
         else:
             amount = 500 # use all spawn points
 
-        new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*',
-                                                                amount,
-                                                                carla.Transform(),
+        new_actors = CarlaDataProvider.create_non_ego_actors(config.non_ego_vehicle_model,
+                                                                amountFront = config.amountFront,
+                                                                amountBack = config.amountBack,
+                                                                amountAcross = config.amountAcross,
+                                                                ego_point = config.ego_point,
                                                                 autopilot=True,
                                                                 random_location=True,
                                                                 rolename='background')

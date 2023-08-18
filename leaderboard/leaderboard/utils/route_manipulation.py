@@ -139,7 +139,6 @@ def interpolate_trajectory(world, waypoints_trajectory, hop_resolution=1.0):
         - waypoints_trajectory: the current coarse trajectory
         - hop_resolution: is the resolution, how dense is the provided trajectory going to be made
     """
-
     dao = GlobalRoutePlannerDAO(world.get_map(), hop_resolution)
     grp = GlobalRoutePlanner(dao)
     grp.setup()
