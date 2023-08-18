@@ -13,7 +13,7 @@ Clone the repo, setup CARLA 0.9.10.1, and build the conda environment:
 ```Shell
 git clone https://github.com/ashishgeorge009/CSI6900transfuser.git
 cd transfuser
-git checkout ashishbranch
+git checkout ashishBranch
 chmod +x setup_carla.sh
 ./setup_carla.sh
 conda env create -f environment.yml
