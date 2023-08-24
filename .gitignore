@@ -161,3 +161,4 @@ cython_debug/
 
 model_ckpt/
 carla/
+**/.DS_Store

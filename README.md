@@ -50,3 +50,6 @@ PS: Before RUNNING this make sure the `CARLA_ROOT`, `WORK_DIR` are correct in `m
 ./leaderboard/scripts/my_evaluation.sh
 ```
 The simulation will run and you can fins your results in the results file that was mentioned in `CHECKPOINT_ENDPOINT`
+
+#### Note: 
+The evaluation runs the route in Town03 of Carla Simulator with the trajectory being spawn point indexes [110,107,115]
